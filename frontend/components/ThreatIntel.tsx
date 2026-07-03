@@ -128,7 +128,7 @@ export default function ThreatIntel() {
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-6xl space-y-5 p-5">
+      <div className="mx-auto max-w-6xl space-y-4 p-3 sm:space-y-5 sm:p-5">
         {/* Alert badges */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <div className={`rounded-lg border p-3 ${summary ? SEV[summary.ransomware_severity].ring : "border-slate-800 bg-slate-900/60"}`}>

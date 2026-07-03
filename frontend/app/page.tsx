@@ -11,9 +11,11 @@ import type { ChatMessage, DataCard, Focus, MapPoint } from "@/lib/types";
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
 type Tab = "command" | "threat";
+type MobileView = "chat" | "map";
 
 export default function CommandCenter() {
   const [tab, setTab] = useState<Tab>("command");
+  const [mobileView, setMobileView] = useState<MobileView>("chat");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [points, setPoints] = useState<MapPoint[]>([]);
@@ -55,15 +57,15 @@ export default function CommandCenter() {
 
   return (
     <div className="flex h-screen flex-col">
-      <header className="flex items-center justify-between border-b border-slate-800 bg-[#0c1118] px-4 py-2.5">
-        <div className="flex items-center gap-4">
+      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-slate-800 bg-[#0c1118] px-3 py-2.5 sm:px-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <span className="font-mono text-lg font-bold tracking-widest text-sky-400">NEXUS</span>
           <nav className="flex items-center gap-1">
             <TabButton id="command" label="COMMAND CENTER" />
             <TabButton id="threat" label="THREAT INTEL" />
           </nav>
         </div>
-        <div className="flex items-center gap-4 font-mono text-xs">
+        <div className="flex items-center gap-3 font-mono text-xs sm:gap-4">
           <span className="flex items-center gap-1.5 text-emerald-400">
             <span className="live-dot h-2 w-2 rounded-full bg-emerald-400" /> LIVE
           </span>
@@ -74,18 +76,44 @@ export default function CommandCenter() {
       </header>
 
       {tab === "command" ? (
-        <main className="flex min-h-0 flex-1">
-          <section className="flex w-[38%] min-w-[340px] flex-col border-r border-slate-800">
-            <Chat messages={messages} loading={loading} onSend={handleSend} />
-          </section>
-          <section className="flex min-w-0 flex-1 flex-col">
-            <div className="h-[58%] min-h-[300px] border-b border-slate-800">
-              <MapView points={points} focus={focus} />
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto p-3">
-              <DataCards cards={cards} />
-            </div>
-          </section>
+        <main className="flex min-h-0 flex-1 flex-col">
+          <div className="flex border-b border-slate-800 md:hidden">
+            {(
+              [
+                ["chat", "CHAT"],
+                ["map", "MAP + DATA"],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                onClick={() => setMobileView(id)}
+                className={`flex-1 py-2 font-mono text-xs tracking-wide ${
+                  mobileView === id ? "bg-sky-500/10 text-sky-300" : "text-slate-500"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="flex min-h-0 flex-1">
+            <section
+              className={`${
+                mobileView === "chat" ? "flex" : "hidden"
+              } w-full min-w-0 flex-col border-slate-800 md:flex md:w-[38%] md:min-w-[340px] md:border-r`}
+            >
+              <Chat messages={messages} loading={loading} onSend={handleSend} />
+            </section>
+            <section
+              className={`${mobileView === "map" ? "flex" : "hidden"} min-w-0 flex-1 flex-col md:flex`}
+            >
+              <div className="h-[50%] min-h-[240px] border-b border-slate-800 md:h-[58%] md:min-h-[300px]">
+                <MapView points={points} focus={focus} />
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto p-3">
+                <DataCards cards={cards} />
+              </div>
+            </section>
+          </div>
         </main>
       ) : (
         <main className="flex min-h-0 flex-1 flex-col">
